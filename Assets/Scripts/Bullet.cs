@@ -1,0 +1,62 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Bullet : MonoBehaviour
+{
+    public int bulletDamage;
+    
+
+    private void OnCollisionEnter(Collision objectWeHit)
+    {
+        if (objectWeHit.gameObject.CompareTag("Target"))
+        {
+            print("Hit" + objectWeHit.gameObject.name + "!");
+
+            CreateBulletImpactEffect(objectWeHit);
+
+            Destroy(gameObject);
+        }
+
+        if (objectWeHit.gameObject.CompareTag("Wall"))
+        {
+            print("Hit a wall");
+
+            CreateBulletImpactEffect(objectWeHit);
+
+            Destroy(gameObject);
+        }
+
+        if (objectWeHit.gameObject.CompareTag("Beer"))
+        {
+            print("Hit a beer bottle");
+
+            objectWeHit.gameObject.GetComponent<BeerBottle>().Shatter();
+            //пулю уничтожать не будем ну типа бутылка не остонавит пулю
+        }
+
+        if (objectWeHit.gameObject.CompareTag("Enemy"))
+        {
+            print("Enemy");
+
+            objectWeHit.gameObject.GetComponent<Enemy>().TakeDamage(bulletDamage);
+
+            Destroy(gameObject);
+
+        }
+    }
+
+    void CreateBulletImpactEffect(Collision objectWeHit)
+    {
+        ContactPoint contact = objectWeHit.contacts[0];
+
+        GameObject hole = Instantiate
+            (GlobalReferences.Instance.bullImpactEffectPrefab,
+            contact.point,
+            Quaternion.LookRotation(contact.normal)
+            );
+
+        hole.transform.SetParent(objectWeHit.gameObject.transform);
+    }
+}
+
